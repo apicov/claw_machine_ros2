@@ -13,7 +13,7 @@ RUN apt update -q \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
     
-# Install pygame system-wide
+# Install requirements system-wide
 COPY requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
     
