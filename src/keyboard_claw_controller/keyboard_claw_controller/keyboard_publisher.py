@@ -23,7 +23,7 @@ class ArrowKeyPublisher(Node):
     def timer_callback(self):
         if self.last_key:
             msg = String()
-            msg.data = f'{self.last_key} pressed'
+            msg.data = f'{self.last_key}'
             self.publisher_.publish(msg)
             self.get_logger().info(f'Publishing: "{msg.data}"')
 

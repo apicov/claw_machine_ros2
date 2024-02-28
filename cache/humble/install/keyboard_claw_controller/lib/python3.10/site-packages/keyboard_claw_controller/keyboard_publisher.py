@@ -6,7 +6,7 @@ from pynput import keyboard
 class ArrowKeyPublisher(Node):
     def __init__(self):
         super().__init__('keyboard_publisher')
-        self.publisher_ = self.create_publisher(String, 'arrow_key', 10)
+        self.publisher_ = self.create_publisher(String, 'arrow_key', 1)
         self.last_key = None
         self.timer = self.create_timer(0.1, self.timer_callback)
         listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
@@ -23,7 +23,7 @@ class ArrowKeyPublisher(Node):
     def timer_callback(self):
         if self.last_key:
             msg = String()
-            msg.data = f'{self.last_key} pressed'
+            msg.data = f'{self.last_key}'
             self.publisher_.publish(msg)
             self.get_logger().info(f'Publishing: "{msg.data}"')
 

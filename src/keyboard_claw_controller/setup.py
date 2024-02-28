@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'keyboard_publisher = keyboard_claw_controller.keyboard_publisher:main'
+            'keyboard_publisher = keyboard_claw_controller.keyboard_publisher:main',
+            'xcarve_controller = keyboard_claw_controller.xcarve_controller:main'
         ],
     },
 )

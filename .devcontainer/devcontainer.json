@@ -48,7 +48,7 @@
 "runArgs": [
     "--net=host",
     "-e", "DISPLAY=${env:DISPLAY}",
-    "--device=/dev/kvm"
+    "--device=/dev/ttyUSB0"
 ],
 "mounts": [
    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
