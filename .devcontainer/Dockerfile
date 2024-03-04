@@ -9,14 +9,22 @@ RUN apt update -q \
     vim \
     tmux \
     python3 \ 
-    python3-pip \ 
+    python3-pip \
+    iproute2 \
+    mosquitto \
+    mosquitto-clients \
     && apt clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
     
 # Install requirements system-wide
 COPY requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
-    
+
+# copy mosquitto broker configuration file
+COPY mosquitto.conf /etc/mosquitto/conf.d/
+# Expose the MQTT port
+EXPOSE 1883
+
 
 ARG USERNAME=rosdev
 ARG UID=1000
@@ -46,9 +54,17 @@ RUN echo 'source /opt/ros/'$ROS_DISTRO'/setup.bash' >> /home/$USERNAME/.bashrc \
     && echo 'source /home/'$USERNAME'/ros2_ws/install/setup.bash' >> /home/$USERNAME/.bashrc
 
 COPY ./.tmux.conf /home/$USERNAME/
+COPY ./ros_entrypoint.sh /
+
+# Copy tmux iniatialization
+COPY ./start_tmux_session.sh /home/$USERNAME/ros2_ws/
 
 # Setup entrypoint
-COPY ./ros_entrypoint.sh /
-ENTRYPOINT ["/ros_entrypoint.sh"]
+# Copy the entrypoint script into the image
+#COPY ./entrypoint.sh /home/$USERNAME/entrypoint.sh
+# Make sure the script is executable
+#RUN chmod +x /home/$USERNAME/entrypoint.sh
+#ENTRYPOINT ["/home/"$USERNAME"/entrypoint.sh"]
 
+ENTRYPOINT ["/ros_entrypoint.sh"]
 CMD ["bash"]
