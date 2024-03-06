@@ -4,3 +4,5 @@ claw_machine_msgs.egg-info/PKG-INFO
 claw_machine_msgs.egg-info/SOURCES.txt
 claw_machine_msgs.egg-info/dependency_links.txt
 claw_machine_msgs.egg-info/top_level.txt
+claw_machine_msgs/msg/__init__.py
+claw_machine_msgs/msg/_position.py

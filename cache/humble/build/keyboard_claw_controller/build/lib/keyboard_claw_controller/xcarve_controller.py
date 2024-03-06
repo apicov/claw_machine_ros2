@@ -12,6 +12,8 @@ class XcarveController(Node):
     def __init__(self):
         super().__init__('xcarve_controller')
 
+        self.last_received_cmd = ''
+
         self.lock = threading.Lock()
 
         # subscriber for movement commands for xcarve
@@ -41,22 +43,29 @@ class XcarveController(Node):
         self.watchdog_counter = 0
         self.watchdog_timer = self.create_timer(0.1, self.watchdog_callback)
 
+    def xcarve_stop_cmd(self):
+        # Send the jog cancel command (0x85)
+        self.lock.acquire()
+        self.serial_port.flushInput()
+        self.serial_port.write(b'\x85')
+        #ok_string =  self.serial_port.readline().decode('utf-8')
+        self.lock.release()
+
     def watchdog_callback(self):
         self.watchdog_counter += 1
         #self.get_logger().info("entro watchdog")
         if self.watchdog_counter >= 2:
             #?self.get_logger().info("watchdog vencido")
-            # Send the jog cancel command (0x85)
-            self.lock.acquire()
-            self.serial_port.flushInput()
-            self.serial_port.write(b'\x85')
-            #ok_string =  self.serial_port.readline().decode('utf-8')
-            self.lock.release()
-
+            self.xcarve_stop_cmd()
             self.watchdog_counter = 0
 
     def movement_cmd_callback(self, msg):
         self.get_logger().info('I heard: "%s"' % msg.data)
+
+        #if last cmd was different,sent stop and flush cmd to xcarve
+        if self.last_received_cmd != msg.data:
+            self.xcarve_stop_cmd()
+
         if msg.data == "Key.up":
             # move forward
             # G91 = incremental distances , G21 = millimeters
@@ -74,6 +83,8 @@ class XcarveController(Node):
             # move left
             self.send_cmd("$J=G91 G21 Y-40 F8000")
             self.watchdog_counter = 0
+
+        self.last_received_cmd = msg.data
         
 
 
