@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'keyboard_publisher = keyboard_claw_controller.keyboard_publisher:main',
-            'xcarve_controller = keyboard_claw_controller.xcarve_controller:main'
+            'xcarve_controller = keyboard_claw_controller.xcarve_controller:main',
+            'ros2_mqtt_bridge = keyboard_claw_controller.ros2_mqtt_bridge:main'
         ],
     },
 )

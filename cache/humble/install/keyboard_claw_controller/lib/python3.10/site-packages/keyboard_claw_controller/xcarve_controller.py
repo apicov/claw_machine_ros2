@@ -62,7 +62,7 @@ class XcarveController(Node):
     def movement_cmd_callback(self, msg):
         self.get_logger().info('I heard: "%s"' % msg.data)
 
-        #if last cmd was different,sent stop and flush cmd to xcarve
+        #if last cmd was different,sent stop and flush buffer cmd to xcarve first
         if self.last_received_cmd != msg.data:
             self.xcarve_stop_cmd()
 
