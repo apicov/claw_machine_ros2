@@ -12,7 +12,7 @@ class XcarveController(Node):
     def __init__(self):
         super().__init__('xcarve_controller')
 
-        self.last_received_cmd = ''
+        self.last_received_cmd = 'stop'
 
         self.lock = threading.Lock()
 
@@ -57,31 +57,51 @@ class XcarveController(Node):
         if self.watchdog_counter >= 2:
             #?self.get_logger().info("watchdog vencido")
             self.xcarve_stop_cmd()
+            self.last_received_cmd = "stop" 
             self.watchdog_counter = 0
 
     def movement_cmd_callback(self, msg):
         self.get_logger().info('I heard: "%s"' % msg.data)
 
+        # when receives a move command it tells the xcarve to move all the way
+        # and keeps it while it receives the same comand continously
+        # if no command is sent in a while, it stops xcarve
+
+        # true if previous command received is the same as the new received commad
+        previous_received_same_flag = True
+
         #if last cmd was different,sent stop and flush buffer cmd to xcarve first
         if self.last_received_cmd != msg.data:
             self.xcarve_stop_cmd()
+            previous_received_same_flag = False
 
         if msg.data == "Key.up":
             # move forward
             # G91 = incremental distances , G21 = millimeters
-            self.send_cmd("$J=G91 G21 X40 F8000")
+            # G90 = absolute coordinates
+            #self.send_cmd("$J=G91 G21 X40 F8000")
+
+            #send cmd only if previous was differnet
+            if not previous_received_same_flag: 
+                self.send_cmd("$J=G90 G21 X780 F8000")
             self.watchdog_counter = 0
         elif msg.data == "Key.down":
             # move backward
-            self.send_cmd("$J=G91 G21 X-40 F8000")
+            #self.send_cmd("$J=G91 G21 X-40 F8000")
+            if not previous_received_same_flag: 
+                self.send_cmd("$J=G90 G21 X0 F8000")
             self.watchdog_counter = 0
         elif msg.data == "Key.right":
             # move right
-            self.send_cmd("$J=G91 G21 Y40 F8000")
+            #self.send_cmd("$J=G91 G21 Y40 F8000")
+            if not previous_received_same_flag: 
+                self.send_cmd("$J=G90 G21 Y780 F8000")
             self.watchdog_counter = 0
         elif msg.data == "Key.left":
             # move left
-            self.send_cmd("$J=G91 G21 Y-40 F8000")
+            #self.send_cmd("$J=G91 G21 Y-40 F8000")
+            if not previous_received_same_flag: 
+                self.send_cmd("$J=G90 G21 Y0 F8000")
             self.watchdog_counter = 0
 
         self.last_received_cmd = msg.data
