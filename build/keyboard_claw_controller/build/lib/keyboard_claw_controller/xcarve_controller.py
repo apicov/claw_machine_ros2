@@ -83,25 +83,25 @@ class XcarveController(Node):
 
             #send cmd only if previous was differnet
             if not previous_received_same_flag: 
-                self.send_cmd("$J=G90 G21 X780 F8000")
+                self.send_cmd("$J=G90 G21 Y780 F8000")
             self.watchdog_counter = 0
         elif msg.data == "Key.down":
             # move backward
             #self.send_cmd("$J=G91 G21 X-40 F8000")
             if not previous_received_same_flag: 
-                self.send_cmd("$J=G90 G21 X0 F8000")
+                self.send_cmd("$J=G90 G21 Y0 F8000")
             self.watchdog_counter = 0
         elif msg.data == "Key.right":
             # move right
             #self.send_cmd("$J=G91 G21 Y40 F8000")
             if not previous_received_same_flag: 
-                self.send_cmd("$J=G90 G21 Y780 F8000")
+                self.send_cmd("$J=G90 G21 X0 F8000")
             self.watchdog_counter = 0
         elif msg.data == "Key.left":
             # move left
             #self.send_cmd("$J=G91 G21 Y-40 F8000")
             if not previous_received_same_flag: 
-                self.send_cmd("$J=G90 G21 Y0 F8000")
+                self.send_cmd("$J=G90 G21 X780 F8000")
             self.watchdog_counter = 0
 
         self.last_received_cmd = msg.data
