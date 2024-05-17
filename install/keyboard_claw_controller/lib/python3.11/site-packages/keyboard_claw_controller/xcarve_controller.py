@@ -18,12 +18,21 @@ class XcarveController(Node):
         self.lock = threading.Lock()
 
         # subscriber for movement commands for xcarve
-        self.subscription = self.create_subscription(
+        self.move_cmds_subscription = self.create_subscription(
             String,
             'arrow_key',
             self.movement_cmd_callback,
             1)
-        self.subscription  # prevent unused variable warning
+        self.move_cmds_subscription  # prevent unused variable warning
+
+        # subscriber for command to move to specific position
+        self.goto_subscription = self.create_subscription(
+            Position,
+            'xcarve_goto',
+            self.goto_callback,
+            1)
+        self.goto_subscription  # prevent unused variable warning
+
 
         # Serial port configuration
         self.serial_port = serial.Serial("/dev/ttyUSB0", 115200)
@@ -93,6 +102,11 @@ class XcarveController(Node):
 
         self.last_received_cmd = msg.data
         
+    #moves to specific position 
+    def goto_callback(self, msg):
+        cmd = f"$J=G90 G21 X{msg.x} Y{msg.y} F8000"
+        self.get_logger().info('I heard: "%s"' % cmd)
+        self.send_cmd(cmd)
 
 
     def timer_publish_position_callback(self):  
