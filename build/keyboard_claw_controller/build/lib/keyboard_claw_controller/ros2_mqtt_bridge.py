@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, UInt8
 import paho.mqtt.client as mqtt
 
 class ROS2MQTTBridge(Node):
@@ -18,6 +18,14 @@ class ROS2MQTTBridge(Node):
             self.claw_cmds_callback,
             1)
         self.claw_cmds_subscription  # prevent unused variable warning
+
+        # subscriber for enable/disable joystick message 
+        self.joystick_enable_subscription = self.create_subscription(
+            UInt8,
+            'joystick_enable',
+            self.joystick_enable_callback,
+            1)
+        self.joystick_enable_subscription  # prevent unused variable warning
         
         self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.mqtt_client.on_connect = self.on_connect
@@ -49,6 +57,11 @@ class ROS2MQTTBridge(Node):
         #get ros 2 claw command and resend it as mqtt topic
         print('claw message',msg.data)
         self.mqtt_client.publish('claw_ctl/cmd', msg.data)
+
+    def joystick_enable_callback(self, msg):
+        #get ros 2 joystick_enable message and resend it as mqtt topic
+        print('jostick_enable message',msg.data)
+        self.mqtt_client.publish('joystick/enable', msg.data)
 
 
 def main(args=None):
