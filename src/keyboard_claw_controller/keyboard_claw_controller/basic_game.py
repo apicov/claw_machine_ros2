@@ -1,38 +1,40 @@
-import rclpy
-from rclpy.node import Node
-from std_msgs.msg import UInt8
-from claw_machine_msgs.msg import Position
+from .claw_lib import ClawCtl
+import time
 
-class GameCtl(Node):
-    def __init__(self):
-        super().__init__('basic_game')
-        self.joystick_enable_publisher = self.create_publisher(UInt8, 'joystick_enable', 1)
-        self.xcarve_goto_publisher = self.create_publisher(Position, 'xcarve_goto', 1)
-        self.last_key = None
-        self.timer = self.create_timer(5, self.timer_callback)
-
-        self.prev_joystick_status = 0
-        
-    def timer_callback(self):
-        #msg = UInt8()
-        #msg.data = 1 if self.prev_joystick_status == 0 else 0
-        #self.prev_joystick_status = msg.data
-
-        #self.joystick_enable_publisher.publish(msg)
-
-        msg = Position()
-        msg.x = 400.0
-        msg.y = 300.0
-        self.xcarve_goto_publisher.publish(msg)
-
-        self.get_logger().info(f'Publishing: "{msg}"')
 
 def main(args=None):
-    rclpy.init(args=args)
-    ctl = GameCtl()
-    rclpy.spin(ctl)
-    ctl.destroy_node()
-    rclpy.shutdown()
+    claw_ctl = ClawCtl(args)
 
+    claw_ctl.disable_joystick()
+    time.sleep(.3)
+    claw_ctl.move_home()
+
+    while True:
+        claw_ctl.enable_joystick()
+        
+        claw_ctl.wait_fire_button()
+
+        claw_ctl.disable_joystick()
+
+        speed = 255
+        grip = 255
+        #claw_ctl.grab_sequence(speed, grip)
+        claw_ctl.open_claw()
+        claw_ctl.claw_down(speed)
+        time.sleep(1)
+        claw_ctl.close_claw(grip)
+        time.sleep(1)
+        claw_ctl.claw_up(speed)
+        time.sleep(1)
+
+        claw_ctl.move_home()
+        time.sleep(2)
+
+        claw_ctl.open_claw()
+        time.sleep(2)
+
+
+    
+    
 if __name__ == '__main__':
     main()

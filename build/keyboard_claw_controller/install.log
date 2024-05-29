@@ -1,9 +1,11 @@
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/ros2_mqtt_bridge.py
+/home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/claw_lib.py
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/__init__.py
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/keyboard_publisher.py
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/xcarve_controller.py
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/basic_game.py
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/__pycache__/ros2_mqtt_bridge.cpython-311.pyc
+/home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/__pycache__/claw_lib.cpython-311.pyc
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/__pycache__/__init__.cpython-311.pyc
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/__pycache__/keyboard_publisher.cpython-311.pyc
 /home/pico/code/claw_machine_ros2/install/keyboard_claw_controller/lib/python3.11/site-packages/keyboard_claw_controller/__pycache__/xcarve_controller.cpython-311.pyc

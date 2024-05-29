@@ -17,10 +17,10 @@ class XcarveController(Node):
 
         self.lock = threading.Lock()
 
-        # subscriber for movement commands for xcarve
+        # subscriber for joystick commands for xcarve
         self.move_cmds_subscription = self.create_subscription(
             String,
-            'arrow_key',
+            'joystick/cmd',
             self.movement_cmd_callback,
             1)
         self.move_cmds_subscription  # prevent unused variable warning
@@ -28,7 +28,7 @@ class XcarveController(Node):
         # subscriber for command to move to specific position
         self.goto_subscription = self.create_subscription(
             Position,
-            'xcarve_goto',
+            'xcarve/goto',
             self.goto_callback,
             1)
         self.goto_subscription  # prevent unused variable warning
@@ -46,7 +46,7 @@ class XcarveController(Node):
         self.homing()
 
         # publisher for xcarve current position
-        self.xcarve_position_publisher = self.create_publisher(Position, 'xcarve_position', 1)
+        self.xcarve_position_publisher = self.create_publisher(Position, 'xcarve/position', 1)
         self.timer_publish_position = self.create_timer(0.1, self.timer_publish_position_callback)
 
     def xcarve_stop_cmd(self):
