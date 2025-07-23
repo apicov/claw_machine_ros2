@@ -1,10 +1,13 @@
+"""Bridge between ROS2 topics and MQTT topics for the claw machine."""
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String, UInt8
 import paho.mqtt.client as mqtt
 
 class ROS2MQTTBridge(Node):
+    """ROS2 node that bridges messages between ROS2 and MQTT for the claw machine."""
     def __init__(self):
+        """Initialize the ROS2MQTTBridge node, MQTT client, and set up publishers/subscribers."""
         super().__init__('ros2_mqtt_bridge')
         #publishes movement comands of joystick or other controllers
         self.joystick_publisher = self.create_publisher(String, 'joystick/cmd', 1)
@@ -34,12 +37,14 @@ class ROS2MQTTBridge(Node):
         self.mqtt_client.loop_start()
 
     def on_connect(self, client, userdata, flags, reason_code, properties):
+        """Callback for when the MQTT client connects to the broker."""
         self.get_logger().info("Connected to MQTT Broker with result code " + str(reason_code))
         self.mqtt_client.subscribe("joystick/cmd") # Subscribe to the MQTT topic
         self.mqtt_client.subscribe("claw/status") 
 
     # receives mqtt message
     def on_message(self, client, userdata, msg):
+        """Callback for when an MQTT message is received."""
         topic = msg.topic
 
         self.get_logger().info('Received message from MQTT: "%s"' % msg.payload.decode())
@@ -58,17 +63,20 @@ class ROS2MQTTBridge(Node):
             
             
     def claw_cmds_callback(self, msg):
+        """Callback for forwarding ROS2 claw command messages to MQTT."""
         #get ros 2 claw command and resend it as mqtt topic
         print('claw message',msg.data)
         self.mqtt_client.publish('claw/ctl', msg.data)
 
     def joystick_enable_callback(self, msg):
+        """Callback for forwarding ROS2 joystick enable messages to MQTT."""
         #get ros 2 joystick_enable message and resend it as mqtt topic
         print('jostick_enable message',msg.data)
         self.mqtt_client.publish('joystick/enable', msg.data)
 
 
 def main(args=None):
+    """Entry point for running the ROS2MQTTBridge node."""
     rclpy.init(args=args)
 
     ros2_mqtt_bridge = ROS2MQTTBridge()

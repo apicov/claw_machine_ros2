@@ -1,3 +1,4 @@
+"""Library for controlling the claw machine via ROS2 topics and services."""
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import UInt8,String
@@ -7,12 +8,14 @@ import time
 
 
 class ClawCtl():
-    '''Wrapper class for using ROS2 functions for claw controller'''
+    """Wrapper class for using ROS2 functions for claw controller."""
     def __init__(self, args):
+        """Initialize the ClawCtl wrapper and ROS2 node."""
         rclpy.init(args=args)
         self.ctl = RosClawCtl()
 
     def disable_joystick(self):
+        """Disable the joystick input for the claw machine."""
         #disable joystick
         self.ctl.get_logger().info(f'disabling joystick...')
         joytick_enable_msg = UInt8()
@@ -20,6 +23,7 @@ class ClawCtl():
         self.ctl.joystick_enable_publisher.publish(joytick_enable_msg)
     
     def enable_joystick(self):
+        """Enable the joystick input for the claw machine."""
         #enable joystick to send commands
         self.ctl.get_logger().info(f'enabling joystick ...')
         joytick_enable_msg = UInt8()
@@ -27,6 +31,7 @@ class ClawCtl():
         self.ctl.joystick_enable_publisher.publish(joytick_enable_msg)
 
     def move_home(self):
+        """Move the claw machine to the home position."""
         #move xcarve to initial position
         self.ctl.get_logger().info(f'going to home position...')
         xcarve_position_msg = Position()
@@ -42,6 +47,7 @@ class ClawCtl():
         self.ctl.get_logger().info(f'home position.')
 
     def wait_fire_button(self):
+        """Wait for the red fire button to be pressed."""
         #wait for red button to be pressed
         while not self.ctl.red_button_event.is_set():
             rclpy.spin_once(self.ctl, timeout_sec=0.1)
@@ -50,6 +56,7 @@ class ClawCtl():
         self.ctl.get_logger().info(f'red button pressed ...')
 
     def grab_sequence(self, speed, grip):
+        """Perform the grab sequence with specified speed and grip."""
         self.ctl.get_logger().info(f'grabbing object ...')
 
         cmd = f'grab_seq {int(speed)} {int(grip)}'
@@ -58,6 +65,7 @@ class ClawCtl():
         self.ctl.get_logger().info(f'claw done')
 
     def open_claw(self):
+        """Open the claw to release an object."""
         self.ctl.get_logger().info(f'releasing object ...')
 
         cmd = f'open'
@@ -66,6 +74,7 @@ class ClawCtl():
         self.ctl.get_logger().info(f'claw open')
 
     def close_claw(self, grip):
+        """Close the claw with the specified grip strength."""
         self.ctl.get_logger().info(f'closing claw ...')
 
         cmd = f'close {int(grip)}'
@@ -74,6 +83,7 @@ class ClawCtl():
         self.ctl.get_logger().info(f'claw closed')
 
     def claw_up(self, speed):
+        """Raise the claw with the specified speed."""
         self.ctl.get_logger().info(f'raising claw ...')
 
         cmd = f'up {int(speed)}'
@@ -83,6 +93,7 @@ class ClawCtl():
 
 
     def claw_down(self, speed):
+        """Lower the claw with the specified speed."""
         self.ctl.get_logger().info(f'claw downwards...')
 
         cmd = f'down {int(speed)}'
@@ -92,6 +103,7 @@ class ClawCtl():
 
 
     def __send_claw_msg(self, message):
+        """Send a command message to the claw controller and wait for completion."""
         self.ctl.claw_status_event.clear()
 
         claw_msg = String()
@@ -104,6 +116,7 @@ class ClawCtl():
 
 
     def __del__(self):
+        """Cleanup the ROS2 node on deletion."""
         self.ctl.destroy_node()
         rclpy.shutdown()
 
@@ -113,8 +126,9 @@ class ClawCtl():
 
 
 class RosClawCtl(Node):
-    '''ROS2 node for controlling claw controller messages manually'''
+    """ROS2 node for controlling claw controller messages manually."""
     def __init__(self):
+        """Initialize the ROS2 node and set up publishers, subscribers, and events."""
         super().__init__('basic_game')
         self.joystick_enable_publisher = self.create_publisher(UInt8, 'joystick/enable', 1)
         self.xcarve_goto_publisher = self.create_publisher(Position, 'xcarve/goto', 1)
@@ -165,10 +179,12 @@ class RosClawCtl(Node):
         self.prev_joystick_status = 0
 
     def claw_status_callback(self, msg):
+        """Callback for receiving claw status messages."""
         if msg.data == 'done':
             self.claw_status_event.set()
 
     def xcarve_position_callback(self, msg):
+        """Callback for receiving xcarve position messages and updating home event."""
         #absolute errors between home and current positions
         max_error = 5.0
         ex = abs(msg.x - self.home_x)
@@ -182,6 +198,7 @@ class RosClawCtl(Node):
 
 
     def joystick_callback(self, msg):
+        """Callback for receiving joystick messages and updating red button event."""
         if msg.data == 'Button.red':
             self.get_logger().info(f'Publishing: "{msg}"')
             self.red_button_event.set()

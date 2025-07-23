@@ -1,3 +1,4 @@
+"""ROS2 node for controlling the X-Carve CNC machine via serial commands."""
 #!/usr/bin/env python
 import rclpy
 from rclpy.node import Node
@@ -10,7 +11,9 @@ import re
 
 
 class XcarveController(Node):
+    """ROS2 node for controlling the X-Carve CNC machine."""
     def __init__(self):
+        """Initialize the XcarveController node, serial connection, and ROS2 interfaces."""
         super().__init__('xcarve_controller')
 
         self.last_received_cmd = 'x'
@@ -50,6 +53,7 @@ class XcarveController(Node):
         self.timer_publish_position = self.create_timer(0.1, self.timer_publish_position_callback)
 
     def xcarve_stop_cmd(self):
+        """Send the jog cancel command to the X-Carve to stop movement."""
         # Send the jog cancel command (0x85)
         self.lock.acquire()
         self.serial_port.flushInput()
@@ -58,6 +62,7 @@ class XcarveController(Node):
         self.lock.release()
 
     def movement_cmd_callback(self, msg):
+        """Callback for handling joystick movement commands."""
         self.get_logger().info('I heard: "%s"' % msg.data)
 
         # when receives a move command it tells the xcarve to move all the way
@@ -104,18 +109,21 @@ class XcarveController(Node):
         
     #moves to specific position 
     def goto_callback(self, msg):
+        """Callback for moving the X-Carve to a specific position."""
         cmd = f"$J=G90 G21 X{msg.x} Y{msg.y} F8000"
         self.get_logger().info('I heard: "%s"' % cmd)
         self.send_cmd(cmd)
 
 
     def timer_publish_position_callback(self):  
+        """Timer callback to publish the current position of the X-Carve."""
         pos_msg = self.read_position()
         self.xcarve_position_publisher.publish(pos_msg)
         #self.get_logger().info(f'{pos_msg}')
 
 
     def homing(self):
+        """Send the homing command to the X-Carve and handle alarms."""
         self.serial_port.flushInput()
         #print('Going home')
         self.get_logger().info('Going home')
@@ -134,6 +142,7 @@ class XcarveController(Node):
         self.get_logger().info('home position')
 
     def send_cmd(self,cmd):
+        """Send a command to the X-Carve and return the response."""
         self.get_logger().info(f'{cmd}')
         b_cmd = cmd+'\n'
         self.lock.acquire()
@@ -146,6 +155,7 @@ class XcarveController(Node):
     
 
     def get_raw_position_xcarve(self):
+        """Get the raw position string from the X-Carve via serial."""
         # send status command and read two lines (first one is an "ok" and second one info message)
         self.lock.acquire()
         self.serial_port.flushInput()
@@ -157,6 +167,7 @@ class XcarveController(Node):
 
 
     def read_position(self):
+        """Read and parse the current position of the X-Carve from the serial output."""
         mess = Position() # current position message
         mess.header.stamp = self.get_clock().now().to_msg()
         # send status request to xcarve
@@ -179,6 +190,7 @@ class XcarveController(Node):
         return mess
 
 def main(args=None):
+    """Entry point for running the XcarveController node."""
     rclpy.init(args=args)
     xcarve_controller = XcarveController()
     rclpy.spin(xcarve_controller)

@@ -1,8 +1,10 @@
+"""Main game loop for controlling the claw machine using ROS2."""
 from .claw_lib import ClawCtl
 import time
 
 
 def main(args=None):
+    """Main function to run the basic claw machine game loop."""
     claw_ctl = ClawCtl(args)
 
     claw_ctl.disable_joystick()
